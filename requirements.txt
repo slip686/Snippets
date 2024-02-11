@@ -1,0 +1,6 @@
+django==4.1.7; python_version >= '3.8'
+django-extensions==3.2.1; python_version >= '3.6'
+django-pygmentify==0.3.7
+pillow==10.1.0; python_version >= '3.8'
+psycopg2-binary
+gunicorn~=21.2.0

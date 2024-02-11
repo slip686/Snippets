@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<!-- Begin page content -->
+    <div class="container">
+        <div class="row">
+            <div class="col text-center">
+                <h1>{{ pagename }}</h1>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <form action="{% url 'snippets_list' %}" method="get">
+                {% if my == True %}
+                    <input type="hidden" name="my" value=True>
+                {% endif %}
+                Фильтр по языку:
+                <select name="filter_by_lang">
+                    <option {% if selected_lang == None%} selected {% endif %} value="">Все</option>
+                    {% for lang in langs %}
+                        <option {% if selected_lang == lang.val%} selected {% endif %} value="{{lang.val}}">{{lang.name}}</option>
+                    {% endfor %}
+                </select>
+                <input type="submit" name="submit" value="Применить" class="btn btn-secondary">
+            </form>
+        </div><br>
+
+{#        <div class="row">#}
+{#        </div><br>#}
+
+        <div class="row">
+            <div class="col">
+                <table class="table table-striped">
+                    <thead class="thead-dark">
+                    <tr>
+                        <th scope="col"><a href="{% url 'snippets_list' %}?sort=id">ID</a></th>
+                        <th scope="col"><a href="{% url 'snippets_list' %}?sort=name">Название</a></th>
+                        <th scope="col"><a href="{% url 'snippets_list' %}?sort=creation_date">Дата создания</a></th>
+                        <th scope="col"><a href="{% url 'snippets_list' %}?sort=user_id__username">Пользователь</a></th>
+                    </tr>
+                    </thead>
+                    <tbody>
+
+                        {% for snippet in snippets %}
+                        <tr>
+                            <td scope="row">{{ snippet.id }}</td>
+                            <td><a href="{% url "snippet-detail" snippet.id %}">{{snippet.name}}</a></td>
+                            <td>{{ snippet.creation_date }}</td>
+                            <td>{{ snippet.user.username }}</td>
+                        </tr>
+                        {% endfor %}
+
+                    </tbody>
+                </table>
+                <div align="right">
+                    <i style="color: gray;">Всего сниппетов: {{ count }}</i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% load my_tags %}
+{% load pygmentify_tags %}
+
+{% block content %}
+
+<!-- Begin page content -->
+
+    {% if edit == True %}
+
+<div class="container">
+    <div class="row">
+        <div class="col text-center">
+            <h1>{{ pagename }}</h1>
+            <hr>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="col-2 offset-10">
+        <a href="{% url 'snippet-delete' snippet_id=snippet.id %}" class="btn btn-danger btn-block"><span>Удалить сниппет</span></a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <fieldset>
+                <hr>
+                <form action="{% url 'snippet-save' snippet_id=snippet.id %}" method="post">
+                    {% csrf_token %}
+                    <div class="row">
+                        <div class="col col-8">
+                            <label for="name"></label>
+                            Название: <input id="name" type="text" name="name" value={{ snippet.name }} class="form-control">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <label for="private"></label>
+                            Приватный: <input id="private" type="checkbox" name="private"
+                        {% if snippet.private %} checked {% endif %}>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            Код: <textarea id="code" type="text" name="code" rows="10" class="form-control" style="border:1px solid #ced4da; border-radius:5px;">{{ snippet.code }}</textarea>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-4 offset-4">
+                            <input type="submit" value="Сохранить" class="btn btn-secondary btn-block">
+                        </div>
+                    </div>
+                </form>
+             </fieldset>
+        </div>
+    </div>
+</div>
+
+    {% elif comment_edit == True %}
+
+        <div class="container">
+            <div class="row">
+            <div class="col text-center">
+                <h1>{{ pagename }}</h1>
+                <hr>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+                <fieldset disabled>
+                    <div class="row disabled">
+                        <div class="col col-8">
+                            Название: <input type="text" value={{ snippet.name }} class="form-control">
+                        </div>
+                        <div class="col col-4">
+                            Дата создания:<input type="date" value={{ snippet.creation_date }} class="form-control">
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="row">
+                        <div class="col">
+                            Код:
+                            <div class="p-2 h-100" style="border:1px solid #ced4da; border-radius:5px;">
+                                <link rel="stylesheet" href="{% pygmentify_css %}">
+                                {% pygmentify %}
+                                    <pre class={{ lang_name }}>
+                                        {{ snippet.code }}
+                                    </pre>
+                                {% endpygmentify %}
+                            </div>
+                        </div>
+                    </div>
+                 </fieldset>
+            </div>
+        </div> <br>
+            </div>
+{#            {% if request.user.is_authenticated %}#}
+{#            <div class="row mt-3">#}
+{#                <div class="col-4 offset-4">#}
+{#                    <a href="{% url 'snippet-edit' snippet_id=snippet.id %}" class="btn btn-secondary btn-block"><span>Редактировать сниппет</span></a>#}
+{#                </div>#}
+{#            </div><br>#}
+{#        {% endif %}#}
+        <div class="col-6 offset-3" >
+            <form action="{% url 'comment-save' comment_id=comment.id %}" method="post">
+                {% csrf_token %}
+                Комментарий: <textarea type="text" name="comment_text" class="form-control">{{ comment.text }}
+                                </textarea><br>
+                <div class="col-4 offset-4">
+                    <input type="submit" value="Сохранить" class="btn btn-secondary btn-block">
+                </div>
+            </form>
+        </div>
+
+    {% else %}
+
+        <div class="container">
+        <div class="row">
+        <div class="col text-center">
+            <h1>{{ pagename }}</h1>
+            <hr>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <fieldset disabled>
+                <div class="row disabled">
+                    <div class="col col-8">
+                        Название: <input type="text" value={{ snippet.name }} class="form-control">
+                    </div>
+                    <div class="col col-4">
+                        Дата создания:<input type="date" value={{ snippet.creation_date }} class="form-control">
+                    </div>
+                </div>
+                <hr>
+                <div class="row">
+                    <div class="col">
+                        Код:
+                        <div class="p-2 h-100" style="border:1px solid #ced4da; border-radius:5px;">
+                                <link rel="stylesheet" href="{% pygmentify_css %}">
+                                {% pygmentify %}
+                                    <pre class={{ lang_name }}>
+                                        {{ snippet.code }}
+                                    </pre>
+                                {% endpygmentify %}
+                        </div>
+                    </div>
+                </div>
+             </fieldset>
+        </div>
+    </div> <br>
+        </div>
+        {% if request.user.id == snippet.user.id or request.user.is_superuser %}
+        <div class="row mt-3">
+                <div class="col-4 offset-4">
+                    <a href="{% url 'snippet-edit' snippet_id=snippet.id %}" class="btn btn-secondary btn-block"><span>Редактировать сниппет</span></a>
+                </div>
+        </div><br>
+        {% endif %}
+        <div class="col offset-1">
+            Комментарии:<br>
+            <table border="0">
+               <tr>
+                   <th>Автор</th>
+                   <th>Комментарий</th>
+                   <th>Дата</th>
+                   <th>Изображение</th>
+                   <th></th>
+                   <th></th>
+               </tr>
+
+               {% for comment in comments %}
+                   <tr>
+                       <td style="padding: 10px 40px 10px 10px;">{{comment.author.username}}</td>
+                       <td style="padding: 10px 40px 10px 10px">{{comment.text}}</td>
+                       <td style="padding: 10px 40px 10px 10px">{{comment.creation_date}}</td>
+                       <td><img  src="{{ MEDIA_URL }}{{comment.image}}" width="40" height="40" ></td>
+                       {% if request.user.id == comment.author.id %}
+                           <td style="padding: 10px 40px 10px 10px"><a href="{% url 'comment-edit' comment_id=comment.id %}">
+                           <i style="color: red" class="fas fa-edit"></i>
+                            </a>
+                       </td>
+                       {% else %}
+                       <td></td>
+                       {% endif %}
+                       {% if request.user.is_superuser %}
+                           <td style="padding: 10px 40px 10px 10px"><a href="{% url 'comment-delete' comment_id=comment.id %}">
+                               <i style="color: red" class="fa-solid fa-trash"></i>
+                                </a>
+                           </td>
+                       {% endif %}
+                   </tr>
+               {% endfor %}
+            </table><br>
+            {% if request.user.is_authenticated %}
+                <div class="col-10">
+                    <form action="{% url 'comment_add' snippet_id=snippet.id %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="col-3">
+                            Добавить комментарий:
+                            {{comment_form}}
+                        </div><br>
+                        <div class="col-2">
+                       <button type="submit" class="btn btn-secondary btn-block">Добавить</button>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+
+        </div><br>
+
+        {% endif %}
+
+{% endblock %}
